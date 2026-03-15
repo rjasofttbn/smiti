@@ -1,5 +1,6 @@
 package com.example.smiti.documentmedia.entity;
 
+import com.example.smiti.auth.entity.User;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -32,6 +33,11 @@ public class DocumentMedia {
     @Column(name = "deleted_at")
     private LocalDateTime deletedAt;
 
-    private String created_by;
-    private String updated_by;
+    @ManyToOne
+    @JoinColumn(name = "created_by")
+    private User createdBy;
+
+    @ManyToOne
+    @JoinColumn(name = "updated_by")
+    private User updatedBy;
 }

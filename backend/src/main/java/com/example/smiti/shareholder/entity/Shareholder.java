@@ -1,5 +1,6 @@
 package com.example.smiti.shareholder.entity;
 
+import com.example.smiti.auth.entity.User;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -47,6 +48,11 @@ public class Shareholder {
     @Column(name = "deleted_at")
     private LocalDateTime deletedAt;
 
-    private String created_by;
-    private String updated_by;
+    @ManyToOne
+    @JoinColumn(name = "created_by") // Maps to 'created_by' column in DB
+    private User createdBy;
+
+    @ManyToOne
+    @JoinColumn(name = "updated_by") // Maps to 'updated_by' column in DB
+    private User updatedBy;
 }

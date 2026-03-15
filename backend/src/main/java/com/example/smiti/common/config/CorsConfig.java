@@ -11,17 +11,19 @@ public class CorsConfig {
     @Bean
     public WebMvcConfigurer corsConfigurer() {
         return new WebMvcConfigurer() {
-
             @Override
             public void addCorsMappings(CorsRegistry registry) {
-                registry.addMapping("/**") // allow all endpoints
+                registry.addMapping("/**")
+                        // Merged Origins: React (3000) and Swagger/Other (6060)
                         .allowedOrigins("http://localhost:3000", "http://localhost:6060")
-                        // your frontend (React) & Swagger origin
+                        // Full list of methods including OPTIONS for pre-flight requests
                         .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
-                        .allowedHeaders("*") // allow all headers
-                        .allowCredentials(true) // allow cookies and auth headers
+                        // Allow all headers from the frontend
+                        .allowedHeaders("*")
+                        // Crucial for JWT and Cookies
+                        .allowCredentials(true)
+                        // Ensure the frontend can actually see the Authorization header
                         .exposedHeaders("Authorization", "Content-Disposition");
-                // headers that should be exposed to frontend
             }
         };
     }

@@ -1,5 +1,7 @@
 package com.example.smiti.fieldpayment.service;
 
+import com.example.smiti.auth.entity.User;
+import com.example.smiti.auth.repository.UserRepository;
 import com.example.smiti.fieldpayment.entity.FieldPayment;
 import com.example.smiti.fieldpayment.repository.FieldPaymentRepository;
 import lombok.RequiredArgsConstructor;
@@ -15,10 +17,20 @@ public class FieldPaymentService {
     private final FieldPaymentRepository repository;
 
     // Create
-    public FieldPayment create(FieldPayment payment, String username) {
+    // Inject UserRepository alongside your FieldPaymentRepository
+    private final UserRepository userRepository;
 
+
+    public FieldPayment create(FieldPayment payment, String username) {
+        // 1. Fetch the actual User object from the database
+        User user = userRepository.findByEmail(username)
+                .orElseThrow(() -> new RuntimeException("Logged in user not found"));
+
+        // 2. Use the correct setter (Lombok generates setCreatedBy for the createdBy field)
+        payment.setCreatedBy(user);
+
+        // 3. Set the timestamp
         payment.setCreatedAt(LocalDateTime.now());
-        payment.setCreated_by(username);
 
         return repository.save(payment);
     }

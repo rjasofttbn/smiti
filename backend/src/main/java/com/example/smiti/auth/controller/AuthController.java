@@ -43,27 +43,58 @@ public class AuthController {
 
     @PostMapping("/login")
     public ResponseEntity<LoginResponseDto> login(@RequestBody LoginRequestDto request) {
-        // 1. Find the user first
-        User user = userRepository.findByEmail(request.getEmail())
-                .orElseThrow(() -> new RuntimeException("User not found"));
 
-        // 2. NOW you can check if they are enabled
+        System.out.println("DEBUG: Login attempt for email: " + request.getEmail());
+
+        // 1. Find the user
+        User user = userRepository.findByEmail(request.getEmail())
+                .orElseThrow(() -> {
+                    System.out.println("DEBUG: User not found in database.");
+                    return new RuntimeException("User not found");
+                });
+
+        // 2. Check if enabled (Verification check)
         if (!user.isEnabled()) {
+            System.out.println("DEBUG: User exists but is NOT enabled.");
             throw new RuntimeException("Please verify your email before logging in.");
         }
 
         // 3. Check password
+        // If this fails, the password in your DB is likely NOT BCrypt hashed.
         if (!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
+            System.out.println("DEBUG: Password mismatch for user: " + request.getEmail());
             throw new RuntimeException("Invalid credentials");
         }
 
-        // 4. Generate token (Pass the whole user object as we configured before)
-//        String token = jwtService.generateToken(String.valueOf(user));
-        // AuthController.java -> Inside login method
-        String token = jwtService.generateToken(user.getEmail()); // Use .getEmail()
+        // 4. If we reached here, login is successful!
+        System.out.println("DEBUG: Login successful! Generating token...");
+        String token = jwtService.generateToken(user.getEmail());
 
         return ResponseEntity.ok(new LoginResponseDto(token, user.getEmail(), user.getRole().name()));
     }
+
+//    @PostMapping("/login")
+//    public ResponseEntity<LoginResponseDto> login(@RequestBody LoginRequestDto request) {
+//        // 1. Find the user first
+//        User user = userRepository.findByEmail(request.getEmail())
+//                .orElseThrow(() -> new RuntimeException("User not found"));
+//
+//        // 2. NOW you can check if they are enabled
+//        if (!user.isEnabled()) {
+//            throw new RuntimeException("Please verify your email before logging in.");
+//        }
+//
+//        // 3. Check password
+//        if (!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
+//            throw new RuntimeException("Invalid credentials");
+//        }
+//
+//        // 4. Generate token (Pass the whole user object as we configured before)
+//        // AuthController.java -> Inside login method
+//        String token = jwtService.generateToken(user.getEmail()); // Use .getEmail()
+//
+//        return ResponseEntity.ok(new LoginResponseDto(token, user.getEmail(), user.getRole().name()));
+//    }
 
 
     @GetMapping("/verify")

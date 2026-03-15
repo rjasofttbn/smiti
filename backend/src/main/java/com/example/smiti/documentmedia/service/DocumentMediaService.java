@@ -1,5 +1,7 @@
 package com.example.smiti.documentmedia.service;
 
+import com.example.smiti.auth.entity.User;
+import com.example.smiti.auth.repository.UserRepository;
 import com.example.smiti.documentmedia.entity.DocumentMedia;
 import com.example.smiti.documentmedia.repository.DocumentMediaRepository;
 import lombok.RequiredArgsConstructor;
@@ -15,9 +17,20 @@ public class DocumentMediaService {
     private final DocumentMediaRepository repository;
 
     // Create
+    // Ensure you have UserRepository and DocumentMediaRepository injected
+    private final UserRepository userRepository;
+
     public DocumentMedia create(DocumentMedia doc, String username) {
+        // 1. Fetch the User entity using the username (email)
+        User user = userRepository.findByEmail(username)
+                .orElseThrow(() -> new RuntimeException("Authenticated user not found"));
+
+        // 2. Use the correct Lombok setter for the User object
+        doc.setCreatedBy(user);
+
+        // 3. Set the timestamp
         doc.setCreatedAt(LocalDateTime.now());
-        doc.setCreated_by(username);
+
         return repository.save(doc);
     }
 
