@@ -1,41 +1,30 @@
-import React, { useEffect, useState } from "react";
-import axios from "axios";
-import { AppBar, Toolbar, Typography, Button, Box } from "@mui/material";
+import React from "react";
+import { Grid, Typography, Box } from "@mui/material";
+import DashboardLayout from "../../components/layout/DashboardLayout";
+import StatCard from "../../components/cards/StatCard";
+import { getDashboardStats } from "../../config/dashboardStats";
 
 export default function Dashboard() {
-  const [shareholders, setShareholders] = useState([]);
-
-  useEffect(() => {
-    const token = localStorage.getItem("token");
-    const config = { headers: { Authorization: `Bearer ${token}` } };
-
-    axios.get("http://localhost:6060/api/shareholders", config)
-      .then(res => setShareholders(res.data))
-      .catch(err => console.log(err));
-  }, []);
-
-  const handleLogout = () => {
-    localStorage.removeItem("token");
-    window.location.href = "/login";
-  };
+  const stats = getDashboardStats();
 
   return (
-    <Box>
-      <AppBar position="static">
-        <Toolbar>
-          <Typography variant="h6" style={{ flexGrow: 1 }}>Dashboard</Typography>
-          <Button color="inherit" onClick={handleLogout}>Logout</Button>
-        </Toolbar>
-      </AppBar>
-
-      <Box m={2}>
-        <Typography variant="h4">Shareholders</Typography>
-        <ul>
-          {shareholders.map(sh => (
-            <li key={sh.id}>{sh.name} - {sh.shareCount} shares</li>
-          ))}
-        </ul>
+    <DashboardLayout>
+      <Box mb={4}>
+        <Typography variant="h4" fontWeight="bold">Dashboard Overview</Typography>
       </Box>
-    </Box>
+
+      {/* spacing={3} adds the gap between your fixed-size cards */}
+      <Grid container spacing={3} justifyContent="flex-start">
+        {stats.map((item, index) => (
+          <Grid
+            item
+            key={index}
+            // We remove xs/md sizes because the card itself has a fixed width
+          >
+            <StatCard item={item} />
+          </Grid>
+        ))}
+      </Grid>
+    </DashboardLayout>
   );
 }
