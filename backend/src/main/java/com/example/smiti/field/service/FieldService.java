@@ -1,5 +1,7 @@
 package com.example.smiti.field.service;
 
+import com.example.smiti.auth.entity.User;
+import com.example.smiti.auth.repository.UserRepository;
 import com.example.smiti.field.entity.Field;
 import com.example.smiti.field.repository.FieldRepository;
 import lombok.RequiredArgsConstructor;
@@ -12,23 +14,30 @@ import java.util.List;
 @RequiredArgsConstructor
 public class FieldService {
 
-    private final FieldRepository repository;
+    private final FieldRepository fieldRepository;
+    private final UserRepository userRepository;
 
     // Create field
     public Field create(Field field, String username) {
+        // 1. Get the actual User entity from the DB
+        User user = userRepository.findByEmail(username)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        // 2. Set the User object (Lombok creates setCreatedBy for the createdBy field)
+        field.setCreatedBy(user);
         field.setCreatedAt(LocalDateTime.now());
-        field.setCreated_by(username);
-        return repository.save(field);
+
+        return fieldRepository.save(field);
     }
 
     // Get all active
     public List<Field> getAllActive() {
-        return repository.findByDeletedAtIsNull();
+        return fieldRepository.findByDeletedAtIsNull();
     }
 
     // Get by ID
     public Field getById(Long id) {
-        return repository.findById(id)
+        return fieldRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Field not found"));
     }
 
@@ -48,7 +57,7 @@ public class FieldService {
 
         field.setUpdatedAt(LocalDateTime.now());
 
-        return repository.save(field);
+        return fieldRepository.save(field);
     }
 
 
@@ -57,11 +66,11 @@ public class FieldService {
     public void delete(Long id) {
         Field field = getById(id);
         field.setDeletedAt(LocalDateTime.now());
-        repository.save(field);
+        fieldRepository.save(field);
     }
 
     // Trash
     public List<Field> getTrash() {
-        return repository.findByDeletedAtIsNotNull();
+        return fieldRepository.findByDeletedAtIsNotNull();
     }
 }

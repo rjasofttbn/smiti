@@ -1,5 +1,6 @@
 package com.example.smiti.payment.entity;
 
+import com.example.smiti.auth.entity.User;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -19,6 +20,7 @@ public class Payment {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(name = "shareholder_id")
     private Long shareholderId;
 
     private String type;
@@ -37,6 +39,11 @@ public class Payment {
     @Column(name = "deleted_at")
     private LocalDateTime deletedAt;
 
-    private String created_by;
-    private String updated_by;
+    @ManyToOne
+    @JoinColumn(name = "created_by")
+    private User createdBy;
+
+    @ManyToOne
+    @JoinColumn(name = "updated_by")
+    private User updatedBy;
 }

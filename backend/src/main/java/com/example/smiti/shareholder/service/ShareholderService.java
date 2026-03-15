@@ -1,5 +1,7 @@
 package com.example.smiti.shareholder.service;
 
+import com.example.smiti.auth.entity.User;
+import com.example.smiti.auth.repository.UserRepository;
 import com.example.smiti.shareholder.entity.Shareholder;
 import com.example.smiti.shareholder.repository.ShareholderRepository;
 import lombok.RequiredArgsConstructor;
@@ -13,11 +15,15 @@ import java.util.List;
 public class ShareholderService {
 
     private final ShareholderRepository repository;
-
+    private final UserRepository userRepository;
     // Create
     public Shareholder create(Shareholder shareholder, String username) {
+        User user = userRepository.findByEmail(username)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        // 2. Set the User object, not the String
+        shareholder.setCreatedBy(user);
         shareholder.setCreatedAt(LocalDateTime.now());
-        shareholder.setCreated_by(username);
         shareholder.setStatus("active");
 
         return repository.save(shareholder);

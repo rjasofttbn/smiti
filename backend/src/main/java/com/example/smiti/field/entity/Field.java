@@ -1,5 +1,6 @@
 package com.example.smiti.field.entity;
 
+import com.example.smiti.auth.entity.User;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -33,6 +34,11 @@ public class Field {
     @Column(name = "deleted_at")
     private LocalDateTime deletedAt;
 
-    private String created_by;
-    private String updated_by;
+    @ManyToOne
+    @JoinColumn(name = "created_by")
+    private User createdBy; // Use CamelCase for Java standards
+
+    @ManyToOne
+    @JoinColumn(name = "updated_by")
+    private User updatedBy;
 }

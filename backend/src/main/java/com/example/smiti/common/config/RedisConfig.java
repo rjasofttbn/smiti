@@ -1,4 +1,4 @@
-package com.example.smiti.config;
+package com.example.smiti.common.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
