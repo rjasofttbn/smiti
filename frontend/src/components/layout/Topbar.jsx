@@ -14,14 +14,20 @@ export default function Topbar({ toggleSidebar, sidebarOpen }) {
   return (
     <AppBar position="static" sx={{ backgroundColor: "#111827" }}>
       <Toolbar>
+        {/* Sidebar toggle button */}
         <IconButton color="inherit" onClick={toggleSidebar} edge="start">
           {sidebarOpen ? <ArrowBack /> : <Menu />}
         </IconButton>
 
-        <Typography className="topbar-logo-button">
+        {/* Title/logo - takes all remaining space */}
+        <Typography
+          className="topbar-logo-button"
+          sx={{ flexGrow: 1, fontWeight: "bold" }}
+        >
           Smiti Management System
         </Typography>
 
+        {/* Logout button pushed to the right */}
         <Button color="inherit" onClick={logout}>
           Logout
         </Button>

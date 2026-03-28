@@ -25,7 +25,8 @@ export default function PaymentsTable({ payments, onEdit, onDelete, onStatusUpda
         <TableHead sx={{ backgroundColor: "#f8f9fa" }}>
           <TableRow>
             <TableCell><strong>ID</strong></TableCell>
-            <TableCell><strong>Shareholder ID</strong></TableCell>
+            <TableCell><strong>Shareholder </strong></TableCell>
+            <TableCell><strong>Contact No </strong></TableCell>
             <TableCell><strong>Amount</strong></TableCell>
             <TableCell><strong>Date</strong></TableCell>
             <TableCell><strong>Status</strong></TableCell>
@@ -42,7 +43,10 @@ export default function PaymentsTable({ payments, onEdit, onDelete, onStatusUpda
                 sx={{ '&:hover': { backgroundColor: '#fafafa' } }}
               >
                 <TableCell>{p.id}</TableCell>
-                <TableCell>{p.shareholderId}</TableCell>
+{/*                 <TableCell>{p.shareholderId}</TableCell> */}
+    {/* Correct way for DTO: The data is flat, not nested */}
+        <TableCell>{p.shareholderName}</TableCell>
+        <TableCell>{p.contactNo}</TableCell>
                 <TableCell><strong>{p.amount}</strong></TableCell>
                 <TableCell>{p.date}</TableCell>
                 <TableCell>

@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from "react";
-import DashboardLayout from "../../components/layout/DashboardLayout";
 import ShareholdersTable from "../../components/tables/ShareholdersTable";
 import { getShareholders } from "../../api/shareholderApi";
 
@@ -12,9 +11,5 @@ export default function ShareholdersPage() {
       .catch(err => console.error(err));
   }, []);
 
-  return (
-    <DashboardLayout>
-      <ShareholdersTable shareholders={shareholders} />
-    </DashboardLayout>
-  );
+  return <ShareholdersTable shareholders={shareholders} />;
 }

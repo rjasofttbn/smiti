@@ -1,39 +1,42 @@
-import React from "react";
+import React, { useState } from "react";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 
-// 1. Auth & Main
+// Pages
 import Login from "./pages/login/Login";
-import Dashboard from "./pages/dashboard/Dashboard"; // Added this back
-
-// 2. Shareholder Pages (Check if your folder is 'shareholder' or 'shareholders')
+import Dashboard from "./pages/dashboard/Dashboard";
 import ShareholdersPage from "./pages/shareholder/ShareholdersPage";
 // import AddShareholderPage from "./pages/shareholder/AddShareholderPage";
+import PaymentsPage from "./pages/payments/PaymentsPage";
+import AddPaymentPage from "./pages/payments/AddPaymentPage";
 
-// 3. Payment Pages (Check if your folder is 'payment' or 'payments')
-import PaymentsPage from "./pages/payments/PaymentsPage"; // Added this back
-// import AddPaymentPage from "./pages/payments/AddPaymentPage";
+// Layout
+import DashboardLayout from "./components/layout/DashboardLayout";
 
 function App() {
+  const [lang, setLang] = useState(() => localStorage.getItem("lang") || "en");
+
   return (
     <BrowserRouter>
       <Routes>
-        {/* Login & Root */}
-        <Route path="/" element={<Login />} />
-        <Route path="/login" element={<Login />} />
 
-        {/* Dashboard */}
-        <Route path="/dashboard" element={<Dashboard />} />
+        {/* Public */}
+        <Route path="/" element={<Login lang={lang} setLang={setLang} />} />
 
-        {/* Shareholders */}
-        <Route path="/shareholders/list" element={<ShareholdersPage />} />
-{/*         <Route path="/shareholders/add" element={<AddShareholderPage />} /> */}
+        {/* Dashboard Layout (ONLY ONCE) */}
+        <Route element={<DashboardLayout lang={lang} setLang={setLang} />}>
 
-        {/* Payments */}
-        <Route path="/payments/list" element={<PaymentsPage />} />
-{/*         <Route path="/payments/add" element={<AddPaymentPage />} /> */}
+          <Route path="/dashboard" element={<Dashboard lang={lang} />} />
 
-        {/* Catch-all: Redirect unknown routes to login */}
+          <Route path="/shareholders/list" element={<ShareholdersPage />} />
+
+          <Route path="/payments/list" element={<PaymentsPage />} />
+          <Route path="/payments/add" element={<AddPaymentPage />} />
+
+        </Route>
+
+        {/* Fallback */}
         <Route path="*" element={<Navigate to="/" />} />
+
       </Routes>
     </BrowserRouter>
   );
