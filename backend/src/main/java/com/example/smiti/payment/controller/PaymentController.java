@@ -1,6 +1,7 @@
 package com.example.smiti.payment.controller;
 
 import com.example.smiti.payment.entity.Payment;
+import com.example.smiti.payment.entity.PaymentDTO;
 import com.example.smiti.payment.service.PaymentService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -24,7 +25,9 @@ public class PaymentController {
 
     // Get all payments
     @GetMapping
-    public ResponseEntity<List<Payment>> getAll() {
+// Change <List<Payment>> to <List<PaymentDTO>>
+    public ResponseEntity<List<PaymentDTO>> getAll() {
+        // Remove the manual (casting) - it's no longer needed!
         return ResponseEntity.ok(paymentService.getAllActive());
     }
 

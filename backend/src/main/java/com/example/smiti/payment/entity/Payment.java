@@ -1,6 +1,7 @@
 package com.example.smiti.payment.entity;
 
 import com.example.smiti.auth.entity.User;
+import com.example.smiti.shareholder.entity.Shareholder;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -20,8 +21,10 @@ public class Payment {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "shareholder_id")
-    private Long shareholderId;
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "shareholder_id", nullable = false)
+    private Shareholder shareholder;
+
 
     private String type;
 

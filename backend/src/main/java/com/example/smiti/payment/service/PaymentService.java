@@ -3,6 +3,7 @@ package com.example.smiti.payment.service;
 import com.example.smiti.auth.entity.User;
 import com.example.smiti.auth.repository.UserRepository;
 import com.example.smiti.payment.entity.Payment;
+import com.example.smiti.payment.entity.PaymentDTO;
 import com.example.smiti.payment.repository.PaymentRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -36,9 +37,9 @@ public class PaymentService {
     }
 
     // Get all active
-    public List<Payment> getAllActive() {
-        return repository.findByDeletedAtIsNull();
-    }
+//    public List<Payment> getAllActive() {
+//        return repository.findByDeletedAtIsNull();
+//    }
 
     // Get by ID
     public Payment getById(Long id) {
@@ -88,5 +89,14 @@ public class PaymentService {
     // Get payments by shareholder
     public List<Payment> getByShareholder(Long shareholderId) {
         return repository.findByShareholderId(shareholderId);
+    }
+
+    public List<PaymentDTO> getAllActive() {
+        List<PaymentDTO> data = repository.findActivePaymentsWithDetails();
+        // Check how many items were found and if the first one has a name
+        if (!data.isEmpty()) {
+            System.out.println("First Shareholder Name: " + data.get(0).getShareholderName() + data.get(0).getContactNo());
+        }
+        return data;
     }
 }
