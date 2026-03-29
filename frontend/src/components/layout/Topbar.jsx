@@ -6,10 +6,15 @@ import { useNavigate } from "react-router-dom";
 export default function Topbar({ toggleSidebar, sidebarOpen }) {
   const navigate = useNavigate();
 
-  const logout = () => {
-    localStorage.removeItem("token");
-    navigate("/", { replace: true });
-  };
+    const logout = () => {
+      localStorage.removeItem("token");
+      navigate("/", { replace: true }); // good
+    };
+
+//   const logout = () => {
+//     localStorage.removeItem("token");
+//     navigate("/", { replace: true });
+//   };
 
   return (
     <AppBar position="static" sx={{ backgroundColor: "#111827" }}>

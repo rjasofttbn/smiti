@@ -33,7 +33,26 @@ export default function PaymentsPage() {
       })
       .catch((err) => console.error(err));
   };
+// ✅ Add this inside PaymentsPage
+const onStatusUpdate = async (id) => {
+  console.log("Update status for ID:", id); // debug
 
+  try {
+    // Call API if you have backend route
+    await fetch(`http://localhost:8080/payments/${id}/approve`, {
+      method: "PUT",
+    });
+
+    // Update UI instantly
+    const updated = payments.map((p) =>
+      p.id === id ? { ...p, status: "Approved" } : p
+    );
+    setPayments(updated);
+
+  } catch (err) {
+    console.error(err);
+  }
+};
   return (
     <>
       <Box display="flex" justifyContent="space-between" alignItems="center" mb={3}>
@@ -71,8 +90,8 @@ export default function PaymentsPage() {
           </Tooltip>
         </Stack>
       </Box>
+<PaymentsTable payments={payments} onStatusUpdate={onStatusUpdate} />
 
-      <PaymentsTable payments={payments} />
     </>
   );
 }

@@ -1,28 +1,26 @@
 import React, { useState, useEffect } from "react";
+import { useParams, useNavigate } from "react-router-dom";
+import axios from "axios";
 import {
-  TextField,
-  Button,
   Box,
+  TextField,
   MenuItem,
-  Autocomplete,
+  Button,
   Stack,
   Typography,
-  IconButton
+  IconButton,
+  Autocomplete
 } from "@mui/material";
 import { ArrowBack } from "@mui/icons-material";
-import { useNavigate } from "react-router-dom";
-import axios from "axios";
-import { LocalizationProvider, DatePicker } from '@mui/x-date-pickers';
-import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
-import dayjs from 'dayjs';
+import { LocalizationProvider, DatePicker } from "@mui/x-date-pickers";
+import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
+import dayjs from "dayjs";
 
-export default function AddPaymentPage() {
+export default function EditPaymentPage() {
+  const { id } = useParams(); // Payment ID from URL
   const navigate = useNavigate();
 
-  // All active shareholders
   const [shareholders, setShareholders] = useState([]);
-
-  // Form data
   const [formData, setFormData] = useState({
     shareholder: null,
     kistiType: "",
@@ -31,30 +29,39 @@ export default function AddPaymentPage() {
     amount: "",
     comment: ""
   });
-
-  // Validation errors
   const [errors, setErrors] = useState({});
 
-  // Load active shareholders from backend
+  // Load shareholders and payment data
   useEffect(() => {
-    axios.get("http://localhost:6060/api/shareholders")
-      .then((res) => {
-        setShareholders(res.data);
+    // 1️⃣ Load all shareholders
+    axios.get("http://localhost:6060/api/shareholders", {
+      headers: { Authorization: `Bearer ${localStorage.getItem("token")}` }
+    })
+      .then(res => setShareholders(res.data))
+      .catch(err => console.error("Error fetching shareholders:", err));
+
+    // 2️⃣ Load payment data by ID
+    axios.get(`http://localhost:6060/api/payments/${id}`, {
+      headers: { Authorization: `Bearer ${localStorage.getItem("token")}` }
+    })
+      .then(res => {
+        const p = res.data;
+        setFormData({
+          shareholder: p.shareholder,
+          kistiType: p.kistiType,
+          paymentType: p.type,
+          paymentDate: p.paymentDate ? dayjs(p.paymentDate) : null,
+          amount: p.amount,
+          comment: p.comment
+        });
       })
-      .catch((err) => {
-        console.error("Error fetching shareholders:", err);
-      });
-  }, []);
+      .catch(err => console.error("Error fetching payment:", err));
+  }, [id]);
 
-  // Handle text/select field changes
-  const handleChange = (e) => {
+  // Handle input changes
+  const handleChange = e => {
     const { name, value } = e.target;
-
-    // Amount numeric validation
-    if (name === "amount") {
-      if (!/^\d*\.?\d*$/.test(value)) return;
-    }
-
+    if (name === "amount" && !/^\d*\.?\d*$/.test(value)) return;
     setFormData({ ...formData, [name]: value });
     setErrors({ ...errors, [name]: "" });
   };
@@ -65,27 +72,25 @@ export default function AddPaymentPage() {
     setErrors({ ...errors, shareholder: "" });
   };
 
-  // Form validation
+  // Simple validation
   const validate = () => {
     const newErrors = {};
     if (!formData.shareholder) newErrors.shareholder = "Shareholder is required";
-    if (!formData.kistiType) newErrors.kistiType = "Kisti type is required";
     if (!formData.paymentType) newErrors.paymentType = "Payment type is required";
     if (!formData.amount) newErrors.amount = "Amount is required";
     else if (parseFloat(formData.amount) <= 0) newErrors.amount = "Amount must be greater than 0";
-    if (formData.comment && formData.comment.length > 200)
-      newErrors.comment = "Comment too long (max 200 chars)";
+    if (formData.comment && formData.comment.length > 200) newErrors.comment = "Comment too long (max 200 chars)";
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
 
-  // Submit form
-  const handleSubmit = (e) => {
+  // Submit update
+  const handleSubmit = e => {
     e.preventDefault();
     if (!validate()) return;
 
     const payload = {
-      shareholderId: formData.shareholder.id,
+      shareholder: formData.shareholder,
       kistiType: formData.kistiType,
       type: formData.paymentType,
       paymentDate: formData.paymentDate ? formData.paymentDate.format("YYYY-MM-DD") : null,
@@ -93,56 +98,41 @@ export default function AddPaymentPage() {
       comment: formData.comment
     };
 
-    axios.post("http://localhost:6060/api/payments", payload, {
-      headers: {
-        Authorization: `Bearer ${localStorage.getItem("token")}`
-      }
+    axios.put(`http://localhost:6060/api/payments/${id}`, payload, {
+      headers: { Authorization: `Bearer ${localStorage.getItem("token")}` }
     })
-    .then(() => {
-      alert("Payment added successfully!");
-      navigate("/payments/list");
-    })
-    .catch((err) => {
-      console.error("Error saving payment:", err);
-      alert("Error saving payment");
-    });
+      .then(() => {
+        alert("Payment updated successfully!");
+        navigate("/payments/list");
+      })
+      .catch(err => {
+        console.error("Error updating payment:", err);
+        alert("Error updating payment");
+      });
   };
 
   return (
     <Box sx={{ maxWidth: 600, mx: "auto", mt: 4 }}>
-      {/* Top bar */}
       <Stack direction="row" alignItems="center" spacing={2} mb={3}>
         <IconButton onClick={() => navigate(-1)} color="primary">
           <ArrowBack />
         </IconButton>
-        <Typography variant="h5" component="h1">
-          Add Payment
-        </Typography>
+        <Typography variant="h5">Edit Payment</Typography>
       </Stack>
 
-      {/* Form */}
       <Box component="form" onSubmit={handleSubmit}>
-        {/* Shareholder dropdown */}
+        {/* Shareholder */}
         <Autocomplete
           options={shareholders}
-          getOptionLabel={(option) =>
-            `${option.name} (NID: ${option.nid || "N/A"}, Phone: ${option.contactNo || "N/A"})`
-          }
+          getOptionLabel={o => `${o.name} (NID: ${o.nid || "N/A"}, Phone: ${o.contactNo || "N/A"})`}
           value={formData.shareholder}
           onChange={handleShareholderChange}
-          renderInput={(params) => (
-            <TextField
-              {...params}
-              label="Select Shareholder"
-              required
-              margin="normal"
-              error={!!errors.shareholder}
-              helperText={errors.shareholder}
-            />
+          renderInput={params => (
+            <TextField {...params} label="Select Shareholder" required margin="normal" error={!!errors.shareholder} helperText={errors.shareholder} />
           )}
         />
 
-        {/* Kisti Type dropdown */}
+        {/* Kisti Type */}
         <TextField
           select
           fullWidth
@@ -151,9 +141,6 @@ export default function AddPaymentPage() {
           value={formData.kistiType}
           onChange={handleChange}
           margin="normal"
-          required
-          error={!!errors.kistiType}
-          helperText={errors.kistiType}
         >
           <MenuItem value="monthly_kisti">মাসিক কিস্তি</MenuItem>
           <MenuItem value="yearly_kisti1">বার্ষিক-১</MenuItem>
@@ -168,24 +155,12 @@ export default function AddPaymentPage() {
           <DatePicker
             label="Payment Date"
             value={formData.paymentDate}
-            onChange={(newValue) => {
-              setFormData({ ...formData, paymentDate: newValue });
-              setErrors({ ...errors, paymentDate: "" });
-            }}
-            renderInput={(params) => (
-              <TextField
-                {...params}
-                fullWidth
-                margin="normal"
-                required
-                error={!!errors.paymentDate}
-                helperText={errors.paymentDate}
-              />
-            )}
+            onChange={newValue => setFormData({ ...formData, paymentDate: newValue })}
+            renderInput={params => <TextField {...params} fullWidth margin="normal" />}
           />
         </LocalizationProvider>
 
-        {/* Payment type dropdown */}
+        {/* Payment Method */}
         <TextField
           select
           fullWidth
@@ -194,9 +169,6 @@ export default function AddPaymentPage() {
           value={formData.paymentType}
           onChange={handleChange}
           margin="normal"
-          required
-          error={!!errors.paymentType}
-          helperText={errors.paymentType}
         >
           <MenuItem value="BANK">Bank</MenuItem>
           <MenuItem value="BKASH">Bkash</MenuItem>
@@ -211,9 +183,6 @@ export default function AddPaymentPage() {
           value={formData.amount}
           onChange={handleChange}
           margin="normal"
-          required
-          error={!!errors.amount}
-          helperText={errors.amount}
         />
 
         {/* Comment */}
@@ -224,12 +193,10 @@ export default function AddPaymentPage() {
           value={formData.comment}
           onChange={handleChange}
           margin="normal"
-          error={!!errors.comment}
-          helperText={errors.comment}
         />
 
         <Button type="submit" variant="contained" sx={{ mt: 3 }}>
-          Save
+          Update Payment
         </Button>
       </Box>
     </Box>
