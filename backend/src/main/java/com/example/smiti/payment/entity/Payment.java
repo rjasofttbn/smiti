@@ -21,16 +21,18 @@ public class Payment {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "shareholder_id", nullable = false)
+    @ManyToOne
+    @JoinColumn(name = "shareholder_id")
     private Shareholder shareholder;
 
+    private String kistiType;
 
     private String type;
 
     private BigDecimal amount;
 
-    private LocalDate date;
+    @Column(name = "payment_date") // optional, maps to DB column
+    private LocalDate paymentDate;
 
     private String status;
 

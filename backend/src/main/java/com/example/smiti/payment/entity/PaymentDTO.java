@@ -6,7 +6,7 @@ public interface PaymentDTO {
     Long getId();
     Double getAmount();
     String getStatus();
-    String getDate();
+    String getPaymentDate();
 
     @JsonProperty("shareholderName") // Forces JSON to be 'shareholderName'
     String getShareholderName();

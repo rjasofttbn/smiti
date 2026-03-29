@@ -7,21 +7,44 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.math.BigDecimal;
 import java.security.Principal;
+import java.time.LocalDate;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/payments")
 @RequiredArgsConstructor
+@CrossOrigin(origins = "http://localhost:3000")
 public class PaymentController {
 
     private final PaymentService paymentService;
 
     // Create payment
     @PostMapping
-    public ResponseEntity<Payment> create(@RequestBody Payment payment, Principal principal) {
-        return ResponseEntity.ok(paymentService.create(payment, principal.getName()));
+    public ResponseEntity<Payment> create(@RequestBody Map<String, Object> payload, Principal principal) {
+        Long shareholderId = Long.valueOf(payload.get("shareholderId").toString());
+
+        Payment payment = new Payment();
+        payment.setAmount(BigDecimal.valueOf(Double.valueOf(payload.get("amount").toString())));
+        payment.setType(payload.get("type").toString());
+        payment.setKistiType(payload.get("kistiType").toString());
+        // Optional: paymentDate
+        Object dateObj = payload.get("paymentDate");
+        if (dateObj != null) {
+            payment.setPaymentDate(LocalDate.parse(dateObj.toString())); // expects "YYYY-MM-DD"
+        }
+        payment.setComment((String) payload.get("comment"));
+
+        Payment savedPayment = paymentService.create(shareholderId, payment, principal.getName());
+        return ResponseEntity.ok(savedPayment);
     }
+//    @PostMapping
+//    public ResponseEntity<Payment> create(@RequestBody Payment payment, Principal principal) {
+//        Payment savedPayment = paymentService.create(payment, principal.getName());
+//        return ResponseEntity.ok(savedPayment);
+//    }
 
     // Get all payments
     @GetMapping
@@ -45,20 +68,25 @@ public class PaymentController {
 
     // Update
     @PutMapping("/{id}")
-    public ResponseEntity<Payment> update(@PathVariable Long id, @RequestBody Payment payment) {
-        return ResponseEntity.ok(paymentService.update(id, payment));
+    public ResponseEntity<Payment> update(
+            @PathVariable Long id,
+            @RequestBody Payment payment,
+            Principal principal) {
+
+        Payment updatedPayment = paymentService.update(id, payment, principal.getName());
+        return ResponseEntity.ok(updatedPayment);
     }
 
     // Status active
-    @PatchMapping("/{id}/active")
-    public ResponseEntity<Payment> active(@PathVariable Long id) {
-        return ResponseEntity.ok(paymentService.updateStatus(id, "active"));
+    @PatchMapping("/{id}/approved")
+    public ResponseEntity<Payment> approved(@PathVariable Long id) {
+        return ResponseEntity.ok(paymentService.updateStatus(id, "Approved"));
     }
 
     // Status inactive
-    @PatchMapping("/{id}/inactive")
-    public ResponseEntity<Payment> inactive(@PathVariable Long id) {
-        return ResponseEntity.ok(paymentService.updateStatus(id, "inactive"));
+    @PatchMapping("/{id}/requested")
+    public ResponseEntity<Payment> requested(@PathVariable Long id) {
+        return ResponseEntity.ok(paymentService.updateStatus(id, "Requested"));
     }
 
     // Soft delete

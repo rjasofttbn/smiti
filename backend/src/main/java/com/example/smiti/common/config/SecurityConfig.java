@@ -35,16 +35,15 @@ public class SecurityConfig {
 
                 // 3️⃣ Authorization rules
                 .authorizeHttpRequests(auth -> auth
-                        // Public endpoints
                         .requestMatchers(
                                 "/api/auth/**",
                                 "/v3/api-docs/**",
                                 "/swagger-ui/**",
                                 "/swagger-ui.html",
                                 "/swagger-resources/**",
-                                "/webjars/**"
+                                "/webjars/**",
+                                "/api/shareholders" // ✅ allow GET /api/shareholders without auth
                         ).permitAll()
-                        // All other requests require authentication
                         .anyRequest().authenticated()
                 )
 

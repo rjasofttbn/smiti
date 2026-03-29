@@ -13,8 +13,8 @@ public interface PaymentRepository extends JpaRepository<Payment, Long> {
     List<Payment> findByDeletedAtIsNotNull();   // soft-deleted / trash
     List<Payment> findByShareholderId(Long shareholderId);
 
-    @Query(value = "SELECT p.id as id, p.amount as amount, p.status as status, p.date as date, " +
-            "s.name as shareholderName, s.contactNo as contactNo " +
+    @Query(value = "SELECT p.id as id,p.kisti_type as kistiType, p.type,p.amount as amount, p.status as status, p.payment_date as paymentDate, " +
+            "s.name as shareholderName, s.contact_no as contactNo " +
             "FROM payments p " +
             "JOIN shareholders s ON p.shareholder_id = s.id " +
             "WHERE p.deleted_at IS NULL",
